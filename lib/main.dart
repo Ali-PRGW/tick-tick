@@ -4,7 +4,9 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:tiktik/core/theme/app_theme.dart';
 import 'package:tiktik/core/theme/theme_provider.dart';
-import 'package:tiktik/data.dart';
+import 'package:tiktik/data/data.dart';
+import 'package:tiktik/features/edit_task_screen.dart';
+import 'package:tiktik/features/task_item.dart';
 
 const taskBoxName = 'tasks';
 
@@ -276,112 +278,3 @@ class HomeScreen extends StatelessWidget {
   }
 }
 
-class TaskItem extends StatefulWidget {
-  const TaskItem({super.key, required this.task});
-
-  final TaskEntity task;
-
-  @override
-  State<TaskItem> createState() => _TaskItemState();
-}
-
-class _TaskItemState extends State<TaskItem> {
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: () {
-        setState(() {
-          widget.task.isCompleted = !widget.task.isCompleted;
-        });
-      },
-      child: Container(
-        height: 84,
-        margin: EdgeInsets.only(top: 4),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(8),
-          color: Theme.of(context).colorScheme.surface,
-        ),
-        child: Row(
-          children: [
-            MyCheckBox(value: widget.task.isCompleted),
-            SizedBox(width: 16),
-            Expanded(
-               child: Text(
-                widget.task.name,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  fontSize: 24,
-                  decoration: widget.task.isCompleted
-                      ? TextDecoration.lineThrough
-                      : null,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class MyCheckBox extends StatelessWidget {
-  final bool value;
-
-  const MyCheckBox({super.key, required this.value});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 24,
-      height: 24,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
-        border: !value ? Border.all(color: Colors.grey, width: 1.7) : null,
-        color: value ? Theme.of(context).colorScheme.primary : null,
-      ),
-      child: value
-          ? Icon(
-              Icons.check,
-              color: Theme.of(context).colorScheme.onPrimary,
-              size: 18,
-            )
-          : null,
-    );
-  }
-}
-
-class EditTaskScreen extends StatelessWidget {
-  final TextEditingController _controller = TextEditingController();
-
-  EditTaskScreen({super.key});
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text("Edit Task")),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          final task = TaskEntity();
-          task.name = _controller.text;
-          task.priority = Priority.low;
-          if (task.isInBox) {
-            task.save();
-          } else {
-            final Box<TaskEntity> box = Hive.box(taskBoxName);
-            box.add(task);
-          }
-          Navigator.of(context).pop();
-        },
-        label: Text("Save Changes"),
-      ),
-      body: Column(
-        children: [
-          TextField(
-            controller: _controller,
-            decoration: InputDecoration(label: Text("Add a task for today...")),
-          ),
-        ],
-      ),
-    );
-  }
-}
