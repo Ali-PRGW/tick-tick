@@ -109,7 +109,13 @@ class HomeScreen extends StatelessWidget {
             context,
           ).push(MaterialPageRoute(builder: (context) => EditTaskScreen()));
         },
-        label: Text("Add New Task"),
+        label: Row(
+          children: [
+            Icon(Icons.add),
+            SizedBox(width: 2,),
+            Text("Add New Task"),
+          ],
+        ),
       ),
       body: Column(
         children: [
@@ -270,24 +276,79 @@ class HomeScreen extends StatelessWidget {
   }
 }
 
-class TaskItem extends StatelessWidget {
+class TaskItem extends StatefulWidget {
   const TaskItem({super.key, required this.task});
 
   final TaskEntity task;
 
   @override
+  State<TaskItem> createState() => _TaskItemState();
+}
+
+class _TaskItemState extends State<TaskItem> {
+  @override
   Widget build(BuildContext context) {
-    return Container(
-      height: 84,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(8),
-        color: Theme.of(context).colorScheme.surface,
+    return InkWell(
+      onTap: () {
+        setState(() {
+          widget.task.isCompleted = !widget.task.isCompleted;
+        });
+      },
+      child: Container(
+        height: 84,
+        margin: EdgeInsets.only(top: 4),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(8),
+          color: Theme.of(context).colorScheme.surface,
+        ),
+        child: Row(
+          children: [
+            MyCheckBox(value: widget.task.isCompleted),
+            SizedBox(width: 16),
+            Expanded(
+               child: Text(
+                widget.task.name,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: 24,
+                  decoration: widget.task.isCompleted
+                      ? TextDecoration.lineThrough
+                      : null,
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
-      child: Row(children: [Text(task.name, style: TextStyle(fontSize: 24))]),
     );
   }
 }
 
+class MyCheckBox extends StatelessWidget {
+  final bool value;
+
+  const MyCheckBox({super.key, required this.value});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 24,
+      height: 24,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        border: !value ? Border.all(color: Colors.grey, width: 1.7) : null,
+        color: value ? Theme.of(context).colorScheme.primary : null,
+      ),
+      child: value
+          ? Icon(
+              Icons.check,
+              color: Theme.of(context).colorScheme.onPrimary,
+              size: 18,
+            )
+          : null,
+    );
+  }
+}
 
 class EditTaskScreen extends StatelessWidget {
   final TextEditingController _controller = TextEditingController();
