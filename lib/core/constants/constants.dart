@@ -19,3 +19,9 @@ class AppColors {
   static const Color darkFocusedBorder = Color(0xFF7C3AED);
   static const Color darkButton = Color(0xFF1E293B);
 }
+
+class PriorityColors {
+  static const Color high = Color(0xFFEF4444);
+  static const Color normal = Color(0xFFF59E0B);
+  static const Color low = Color(0xFF10B981);
+}
