@@ -1,18 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:tiktik/core/constants/constants.dart';
 import 'package:tiktik/data/data.dart';
 import 'package:tiktik/main.dart';
 
 class EditTaskScreen extends StatefulWidget {
-  const EditTaskScreen({super.key});
+  final TaskEntity task;
+  const EditTaskScreen({super.key,required this.task});
 
   @override
   State<EditTaskScreen> createState() => _EditTaskScreenState();
 }
 
 class _EditTaskScreenState extends State<EditTaskScreen> {
-  final TextEditingController _controller = TextEditingController();
+  late final TextEditingController _controller = TextEditingController(text: widget.task.name);
   Priority selectedPriority = Priority.normal;
 
   @override
@@ -22,61 +24,72 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
   }
 
   void _saveTask() {
-    final task = TaskEntity();
-    task.name = _controller.text.trim();
-    task.priority = selectedPriority;
+    widget.task.name = _controller.text.trim();
+    widget.task.priority = selectedPriority;
 
-    final Box<TaskEntity> box = Hive.box<TaskEntity>(taskBoxName);
-    box.add(task);
+    if (widget.task.isInBox) {
+      widget.task.save();
+    } else {
+      final Box<TaskEntity> box = Hive.box<TaskEntity>(taskBoxName);
+      box.add(widget.task);
+    }
 
     Navigator.of(context).pop();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.surface,
-      appBar: AppBar(
-        title: const Text("Edit Task"),
-        elevation: 0,
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: context.isDarkMode
+            ? Brightness.light
+            : Brightness.dark,
+      ),
+      child: Scaffold(
         backgroundColor: Theme.of(context).colorScheme.surface,
-        foregroundColor: Theme.of(context).colorScheme.onSurface,
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: _saveTask,
-        icon: const Icon(Icons.check, size: 22),
-        label: const Text("Save Changes"),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            PriorityCheckBox(
-              selectedPriority: selectedPriority,
-              onChanged: (priority) {
-                setState(() {
-                  selectedPriority = priority;
-                });
-              },
-            ),
-            const SizedBox(height: 20),
-            Expanded(
-              child: TextField(
-                controller: _controller,
-                expands: true,
-                maxLines: null,
-                minLines: null,
-                textAlignVertical: TextAlignVertical.top,
-                decoration: const InputDecoration(
-                  labelText: "Add a task for today...",
-                  alignLabelWithHint: true,
-                  border: OutlineInputBorder(),
+        appBar: AppBar(
+          title: const Text("Edit Task"),
+          elevation: 0,
+          backgroundColor: Theme.of(context).colorScheme.surface,
+          foregroundColor: Theme.of(context).colorScheme.onSurface,
+        ),
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+        floatingActionButton: FloatingActionButton.extended(
+          onPressed: _saveTask,
+          icon: const Icon(Icons.check, size: 22),
+          label: const Text("Save Changes"),
+        ),
+        body: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            children: [
+              PriorityCheckBox(
+                selectedPriority: selectedPriority,
+                onChanged: (priority) {
+                  setState(() {
+                    selectedPriority = priority;
+                  });
+                },
+              ),
+              const SizedBox(height: 20),
+              Expanded(
+                child: TextField(
+                  controller: _controller,
+                  expands: true,
+                  maxLines: null,
+                  minLines: null,
+                  textAlignVertical: TextAlignVertical.top,
+                  decoration: const InputDecoration(
+                    labelText: "Add a task for today...",
+                    alignLabelWithHint: true,
+                    border: OutlineInputBorder(),
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(height: 90), 
-          ],
+              const SizedBox(height: 90),
+            ],
+          ),
         ),
       ),
     );

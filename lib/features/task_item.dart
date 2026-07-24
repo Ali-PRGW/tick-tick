@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:tiktik/core/constants/constants.dart';
 import 'package:tiktik/data/data.dart';
+import 'package:tiktik/features/edit_task_screen.dart';
 import 'package:tiktik/features/my_check_box.dart';
 
 class TaskItem extends StatefulWidget {
@@ -23,14 +24,12 @@ class _TaskItemState extends State<TaskItem> {
       hoverColor: Colors.transparent,
       focusColor: Colors.transparent,
       onTap: () {
-        setState(() {
-          widget.task.isCompleted = !widget.task.isCompleted;
-        });
+        Navigator.of(context).push(MaterialPageRoute(builder: (context)=> EditTaskScreen(task: widget.task,)));
       },
       child: Padding(
         padding: const EdgeInsets.all(2.0),
         child: Container(
-          height: 84,
+          height: 74,
           margin: EdgeInsets.only(top: 16),
           decoration: BoxDecoration(
             boxShadow: [
@@ -44,14 +43,17 @@ class _TaskItemState extends State<TaskItem> {
           ),
           child: Row(
             children: [
-              MyCheckBox(value: widget.task.isCompleted),
+              MyCheckBox(value: widget.task.isCompleted , onTap: () {
+                setState(() {
+                  widget.task.isCompleted = !widget.task.isCompleted;
+                });
+              },),
               SizedBox(width: 16),
               Expanded(
                 child: Text(
                   widget.task.name,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    fontSize: 24,
                     decoration: widget.task.isCompleted
                         ? TextDecoration.lineThrough
                         : null,
