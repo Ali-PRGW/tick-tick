@@ -5,9 +5,10 @@ import 'package:tiktik/features/edit_task_screen.dart';
 import 'package:tiktik/features/my_check_box.dart';
 
 class TaskItem extends StatefulWidget {
-  const TaskItem({super.key, required this.task});
+  const TaskItem({super.key, required this.task, this.onLongPress});
 
   final TaskEntity task;
+  final VoidCallback? onLongPress;
 
   @override
   State<TaskItem> createState() => _TaskItemState();
@@ -23,8 +24,13 @@ class _TaskItemState extends State<TaskItem> {
       highlightColor: Colors.transparent,
       hoverColor: Colors.transparent,
       focusColor: Colors.transparent,
+      onLongPress: widget.onLongPress,
       onTap: () {
-        Navigator.of(context).push(MaterialPageRoute(builder: (context)=> EditTaskScreen(task: widget.task,)));
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => EditTaskScreen(task: widget.task),
+          ),
+        );
       },
       child: Padding(
         padding: const EdgeInsets.all(2.0),
@@ -32,22 +38,20 @@ class _TaskItemState extends State<TaskItem> {
           height: 74,
           margin: EdgeInsets.only(top: 16),
           decoration: BoxDecoration(
-            boxShadow: [
-              BoxShadow(
-                color: Colors.grey,
-                blurRadius: 2,
-              ),
-            ],
+            boxShadow: [BoxShadow(color: Colors.grey, blurRadius: 2)],
             borderRadius: BorderRadius.circular(8),
             color: Theme.of(context).colorScheme.surface,
           ),
           child: Row(
             children: [
-              MyCheckBox(value: widget.task.isCompleted , onTap: () {
-                setState(() {
-                  widget.task.isCompleted = !widget.task.isCompleted;
-                });
-              },),
+              MyCheckBox(
+                value: widget.task.isCompleted,
+                onTap: () {
+                  setState(() {
+                    widget.task.isCompleted = !widget.task.isCompleted;
+                  });
+                },
+              ),
               SizedBox(width: 16),
               Expanded(
                 child: Text(

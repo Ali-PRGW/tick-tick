@@ -3,7 +3,12 @@ import 'package:flutter/services.dart';
 
 class ThemeProvider extends ChangeNotifier {
   Brightness _brightness;
-  ThemeProvider(this._brightness);
+  
+  ThemeProvider(this._brightness) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _updateSystemUI();
+    });
+  }
 
   Brightness get brightness => _brightness;
 
@@ -13,33 +18,38 @@ class ThemeProvider extends ChangeNotifier {
         : Brightness.dark;
 
     notifyListeners();
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _updateSystemUI();
-    });
+    _updateSystemUI();
   }
 
   void updateTheme(Brightness brightness) {
-    _brightness = brightness;
- 
-     notifyListeners();
- 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    if (_brightness != brightness) {
+      _brightness = brightness;
+      notifyListeners();
       _updateSystemUI();
-    });
+    }
   }
 
   void _updateSystemUI() {
-    bool isDark = _brightness == Brightness.dark;
+    final bool isDark = _brightness == Brightness.dark;
+
+    final Color statusBarColor = isDark
+        ? const Color(0xFF1E1E1E)
+        : const Color(0xFFD0BCFF);
+        
+    final Color navBarColor = isDark
+        ? const Color(0xFF121212)
+        : const Color(0xFFF7F2FA);
 
     SystemChrome.setSystemUIOverlayStyle(
-      SystemUiOverlayStyle(
-        statusBarColor: Colors.transparent,
-        statusBarIconBrightness: isDark ? Brightness.light : Brightness.dark,
-        systemNavigationBarColor: isDark ? Colors.black : Colors.white,
-        systemNavigationBarIconBrightness: isDark
-            ? Brightness.light
-            : Brightness.dark,
+      const SystemUiOverlayStyle(
+        // ✅ تنظیمات ثابت برای Status Bar
+        statusBarColor: Colors.transparent, // شفاف
+        statusBarIconBrightness: Brightness.light, // آیکون سفید
+        statusBarBrightness: Brightness.dark, // متن سفید
+        
+        // تنظیمات Navigation Bar
+        systemNavigationBarColor: Colors.transparent,
+        systemNavigationBarIconBrightness: Brightness.light,
         systemNavigationBarDividerColor: Colors.transparent,
         systemNavigationBarContrastEnforced: false,
       ),
